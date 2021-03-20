@@ -3,14 +3,18 @@
     <h1 class="container__title">Статьи</h1>
     <ul class="container__list">
       <li class="container__item item" v-for="article in articles" :key="article._id">
-        <h2 class="item__title">{{ article.title }}</h2>
-        <p class="item__text">{{ article.text }}</p>
+        <button class="container__button" @click="onUpdate(article)">Обновить</button>
+        <div class="container__cover">
+          <h2 class="item__title">{{ article.title }}</h2>
+          <p class="item__text">{{ article.text }}</p>
+        </div>
+        <button class="container__button" @click="handleArticleDelete(article)">Удалить</button>
       </li>
     </ul>
     <form class="form"
           action="#"
           name="edit"
-          @submit="handleSubmit"
+          @submit="updateSubmit"
           noValidate
     >
       <label class="control">
@@ -18,17 +22,19 @@
           class="input input__title"
           type="text" name="title"
           v-model="newTitle"
-          @change="handleInputChange" placeholder="Заголовок статьи" minLength="2" maxLength="20"
+          placeholder="Заголовок статьи" minLength="2" maxLength="20"
           required/>
       </label>
       <label class="control">
         <textarea
-          class="input input__text" name="text" v-model="newText"
-          @change="handleInputChange" placeholder="Текст статьи" minLength="2" maxLength="200" required />
+          class="input input__text" name="text"
+          v-model="newText"
+          placeholder="Текст статьи" minLength="2" maxLength="200"
+          required />
       </label>
       <input
         class="submit"
-        type="submit" value="Сохранить" name="submit"
+        type="submit" value="Обновить" name="submit" />
       />
     </form>
   </div>
@@ -42,7 +48,9 @@ export default {
     return {
       articles: null,
       newTitle: "",
-      newText: ""
+      newText: "",
+      currentArticle: null,
+      isCreate: true,
     }
   },
   created () {
@@ -65,19 +73,51 @@ export default {
           console.log(`${err}`)
         })
     },
-    handleSubmit () {
-      let title = this.newTitle && this.newTitle.trim();
-      let text = this.newText && this.newText.trim();
-      if (!title && !text) {
+    handleArticleUpdate (articleId, inputValue) {
+      Api.updateArticle(articleId, inputValue)
+        .then(() => {
+          this.articles.forEach((article) => {
+            if (article._id === articleId) {
+              article = inputValue;
+            }
+          })
+        })
+        .catch((err) => {
+          console.log(`${err}`)
+        })
+    },
+    onUpdate (article) {
+      this.newTitle = article.title;
+      this.newText = article.text;
+      this.currentArticle = article;
+    },
+    updateSubmit () {
+      let inputValue = {
+        title: this.newTitle,
+        text: this.newText
+      };
+      this.handleArticleUpdate(this.currentArticle._id, inputValue);
+      this.newTitle = "";
+      this.newText = "";
+    },
+    createSubmit () {
+      if (!this.newTitle || !this.newText) {
         return;
       }
       let inputValue = {
-        title: title,
-        text: text
+        title: this.newTitle,
+        text: this.newText
       };
       this.handleArticleCreate(inputValue);
       this.newTitle = "";
       this.newText = "";
+    },
+    getButtonTitle () {
+      if (this.isCreate) {
+        return "Создать статью";
+      } else {
+        return "Обновить статью";
+      }
     },
     handleArticleDelete (article) {
       Api.deleteArticle(article._id)
@@ -109,11 +149,23 @@ export default {
 }
 
 .container__list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   list-style: none;
   padding: 0;
 }
 
+.container__cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 20px 0;
+}
+
 .container__item {
+  display: flex;
   min-width: 200px;
   min-height: 70px;
   color: #3b8070;
@@ -121,6 +173,12 @@ export default {
 
 .container__item:not(:last-of-type) {
   margin-bottom: 10px;
+}
+
+.container__button {
+  border-radius: 30%;
+  width: 80px;
+  height: 80px;
 }
 
 .form {
