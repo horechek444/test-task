@@ -3,18 +3,18 @@
     <h1 class="container__title">Статьи</h1>
     <ul class="container__list">
       <li class="container__item item" v-for="article in articles" :key="article._id">
-        <button class="container__button" @click="onUpdate(article)">Обновить</button>
+        <button class="container__button button" @click="onUpdate(article)">Обновить</button>
         <div class="container__cover">
           <h2 class="item__title">{{ article.title }}</h2>
           <p class="item__text">{{ article.text }}</p>
         </div>
-        <button class="container__button" @click="handleArticleDelete(article)">Удалить</button>
+        <button class="container__button button" @click="handleArticleDelete(article)">Удалить</button>
       </li>
     </ul>
     <form class="form"
           action="#"
           name="edit"
-          @submit="updateSubmit"
+          @submit="getButtonMethod"
           noValidate
     >
       <label class="control">
@@ -32,10 +32,9 @@
           placeholder="Текст статьи" minLength="2" maxLength="200"
           required />
       </label>
-      <input
-        class="submit"
-        type="submit" value="Обновить" name="submit"
-      />
+      <button
+        class="button submit"
+        type="submit" name="submit">{{getButtonTitle ()}}</button>
     </form>
   </div>
 </template>
@@ -87,6 +86,7 @@ export default {
         })
     },
     onUpdate (article) {
+      this.isCreate = false;
       this.newTitle = article.title;
       this.newText = article.text;
       this.currentArticle = article;
@@ -100,6 +100,7 @@ export default {
       this.newTitle = "";
       this.newText = "";
       this.currentArticle = null;
+      this.isCreate = true;
     },
     createSubmit () {
       if (!this.newTitle || !this.newText) {
@@ -118,6 +119,13 @@ export default {
         return "Создать статью";
       } else {
         return "Обновить статью";
+      }
+    },
+    getButtonMethod () {
+      if (this.isCreate) {
+        return this.createSubmit();
+      } else {
+        return this.updateSubmit();
       }
     },
     handleArticleDelete (article) {
@@ -155,6 +163,7 @@ export default {
   align-items: center;
   list-style: none;
   padding: 0;
+  margin-bottom: 30px;
 }
 
 .container__cover {
@@ -182,9 +191,27 @@ export default {
   height: 80px;
 }
 
+.button {
+  background-color: aliceblue;
+  border: 2px solid #3b8070;
+}
+
+.submit {
+  border-radius: 6px;
+}
+
 .form {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  min-height: 130px;
+}
+
+.input {
+  min-width: 200px;
+  padding: 6px 15px;
+  border: 2px solid #3b8070;
+  border-radius: 6px;
 }
 
 </style>
