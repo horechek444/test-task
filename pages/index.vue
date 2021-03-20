@@ -34,7 +34,7 @@
       </label>
       <input
         class="submit"
-        type="submit" value="Обновить" name="submit" />
+        type="submit" value="Обновить" name="submit"
       />
     </form>
   </div>
@@ -99,6 +99,7 @@ export default {
       this.handleArticleUpdate(this.currentArticle._id, inputValue);
       this.newTitle = "";
       this.newText = "";
+      this.currentArticle = null;
     },
     createSubmit () {
       if (!this.newTitle || !this.newText) {
