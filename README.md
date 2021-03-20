@@ -1,4 +1,4 @@
-# test-task
+# test
 
 ## Build Setup
 
