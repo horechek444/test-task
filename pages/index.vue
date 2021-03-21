@@ -40,7 +40,8 @@
 </template>
 
 <script>
-import Api from '@/services/api'
+import Api from '@/services/api';
+import find from "lodash/find";
 
 export default {
   data () {
@@ -75,11 +76,11 @@ export default {
     handleArticleUpdate (articleId, inputValue) {
       Api.updateArticle(articleId, inputValue)
         .then(() => {
-          this.articles.forEach((article) => {
-            if (article._id === articleId) {
-              article = inputValue;
-            }
-          })
+          const article = find(this.articles, {_id: articleId});
+          if (article) {
+            article.title = inputValue.title;
+            article.text = inputValue.text;
+          }
         })
         .catch((err) => {
           console.log(`${err}`)
@@ -121,7 +122,8 @@ export default {
         return "Обновить статью";
       }
     },
-    getButtonMethod () {
+    getButtonMethod (event) {
+      event.preventDefault();
       if (this.isCreate) {
         return this.createSubmit();
       } else {
